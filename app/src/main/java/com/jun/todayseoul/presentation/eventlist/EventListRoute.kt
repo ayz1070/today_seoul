@@ -22,7 +22,7 @@ fun EventListRoute(
     EventListScreen(
         uiState = uiState,
         onSelectDate = viewModel::updateDate,
-        onLocationChange = viewModel::updateLocation,
+        onSearchQueryChange = viewModel::updateSearchQuery,
         onRetry = viewModel::refreshEvents,
         onOpenLink = { link ->
             runCatching { uriHandler.openUri(link) }

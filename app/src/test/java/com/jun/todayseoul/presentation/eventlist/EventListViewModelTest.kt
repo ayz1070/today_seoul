@@ -69,7 +69,7 @@ class EventListViewModelTest {
     }
 
     @Test
-    fun `updating location updates filtered events`() = runTest(testDispatcher) {
+    fun `updating search query updates filtered events`() = runTest(testDispatcher) {
         val initialFilter = EventFilter(date = baseDate)
         val events = listOf(
             Event(title = "Seoul Forest", codeName = null, date = "2024-10-13 10:00", useFee = null, orgLink = null, guName = null, place = "서울숲"),
@@ -81,7 +81,7 @@ class EventListViewModelTest {
         val viewModel = createViewModel(eventRepository, filterRepository)
         advanceUntilIdle()
 
-        viewModel.updateLocation("서울숲")
+        viewModel.updateSearchQuery("서울숲")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -118,8 +118,8 @@ class EventListViewModelTest {
             state.update { current -> current.copy(date = date) }
         }
 
-        override suspend fun updateLocation(query: String?) {
-            state.update { current -> current.copy(locationQuery = query) }
+        override suspend fun updateSearchQuery(query: String?) {
+            state.update { current -> current.copy(searchQuery = query) }
         }
     }
 }

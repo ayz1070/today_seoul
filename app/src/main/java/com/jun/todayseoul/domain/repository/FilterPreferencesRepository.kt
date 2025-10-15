@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface FilterPreferencesRepository {
     val filterFlow: Flow<EventFilter>
     suspend fun updateDate(date: LocalDate)
-    suspend fun updateLocation(query: String?)
+    suspend fun updateSearchQuery(query: String?)
 }

@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import com.google.android.gms.ads.MobileAds
 import com.jun.todayseoul.core.network.SeoulOpenApiClient
 import com.jun.todayseoul.data.preferences.DataStoreFilterPreferencesRepository
 import com.jun.todayseoul.data.remote.SeoulEventRemoteDataSource
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this)
         enableEdgeToEdge()
         setContent {
             TodaySeoulTheme {

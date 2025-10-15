@@ -7,5 +7,6 @@ data class Event(
     val useFee: String?,
     val orgLink: String?,
     val guName: String?,
-    val place: String?
+    val place: String?,
+    val imageUrl: String? = null
 )

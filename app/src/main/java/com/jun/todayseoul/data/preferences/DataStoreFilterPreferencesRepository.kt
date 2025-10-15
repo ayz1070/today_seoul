@@ -38,10 +38,10 @@ class DataStoreFilterPreferencesRepository(
         }
         .map { preferences ->
             val dateString = preferences[DATE_KEY]
-            val locationQuery = preferences[LOCATION_KEY]
+            val searchQuery = preferences[SEARCH_KEY] ?: preferences[LEGACY_LOCATION_KEY]
             EventFilter(
                 date = dateString?.toLocalDateOrNull() ?: LocalDate.now(clock),
-                locationQuery = locationQuery
+                searchQuery = searchQuery
             )
         }
         .distinctUntilChanged()
@@ -52,13 +52,15 @@ class DataStoreFilterPreferencesRepository(
         }
     }
 
-    override suspend fun updateLocation(query: String?) {
+    override suspend fun updateSearchQuery(query: String?) {
         val normalized = query?.trim().takeUnless { it.isNullOrEmpty() }
         dataStore.edit { preferences ->
             if (normalized == null) {
-                preferences.remove(LOCATION_KEY)
+                preferences.remove(SEARCH_KEY)
+                preferences.remove(LEGACY_LOCATION_KEY)
             } else {
-                preferences[LOCATION_KEY] = normalized
+                preferences[SEARCH_KEY] = normalized
+                preferences.remove(LEGACY_LOCATION_KEY)
             }
         }
     }
@@ -70,7 +72,8 @@ class DataStoreFilterPreferencesRepository(
     private companion object {
         private const val DATA_STORE_NAME = "event_filter_preferences"
         private val DATE_KEY = stringPreferencesKey("selected_date")
-        private val LOCATION_KEY = stringPreferencesKey("location_query")
+        private val SEARCH_KEY = stringPreferencesKey("search_query")
+        private val LEGACY_LOCATION_KEY = stringPreferencesKey("location_query")
         private val DEFAULT_ZONE_ID: ZoneId = ZoneId.of("Asia/Seoul")
     }
 }

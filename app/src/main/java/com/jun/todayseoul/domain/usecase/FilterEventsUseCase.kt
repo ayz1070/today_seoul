@@ -8,9 +8,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * Filters and sorts events based on the selected date and an optional location query.
+ * Filters and sorts events based on the selected date and an optional search query.
  * - Date filtering tolerates loosely formatted date strings from the API.
- * - Location filtering checks both `guName` and `place`.
+ * - Search filtering checks title and location fields.
  * - Sorting prioritises events with explicit start times, then falls back to title order.
  */
 class FilterEventsUseCase {
@@ -19,21 +19,21 @@ class FilterEventsUseCase {
         events: List<Event>,
         filter: EventFilter
     ): List<Event> {
-        val normalizedLocation = filter.locationQuery?.trim().orEmpty()
+        val normalizedQuery = filter.searchQuery?.trim().orEmpty()
 
         return events
             .asSequence()
             .filter { it.matchesDate(filter.date) }
-            .filter { it.matchesLocation(normalizedLocation) }
+            .filter { it.matchesSearch(normalizedQuery) }
             .sortedWith(eventComparator)
             .toList()
     }
 
-    private fun Event.matchesLocation(query: String): Boolean {
+    private fun Event.matchesSearch(query: String): Boolean {
         if (query.isEmpty()) return true
         val loweredQuery = query.lowercase(Locale.getDefault())
-        return listOfNotNull(guName, place).any { location ->
-            location?.lowercase(Locale.getDefault())?.contains(loweredQuery) == true
+        return listOfNotNull(title, guName, place).any { candidate ->
+            candidate?.lowercase(Locale.getDefault())?.contains(loweredQuery) == true
         }
     }
 

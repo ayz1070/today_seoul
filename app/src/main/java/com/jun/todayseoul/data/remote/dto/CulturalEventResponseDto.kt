@@ -30,7 +30,8 @@ data class CulturalEventDto(
     @SerialName("USE_FEE") val useFee: String? = null,
     @SerialName("ORG_LINK") val orgLink: String? = null,
     @SerialName("GUNAME") val guName: String? = null,
-    @SerialName("PLACE") val place: String? = null
+    @SerialName("PLACE") val place: String? = null,
+    @SerialName("MAIN_IMG") val mainImage: String? = null
 )
 
 fun CulturalEventDto.toDomain(): Event = Event(
@@ -40,7 +41,8 @@ fun CulturalEventDto.toDomain(): Event = Event(
     useFee = useFee,
     orgLink = orgLink,
     guName = guName,
-    place = place
+    place = place,
+    imageUrl = mainImage
 )
 
 fun List<CulturalEventDto>.toDomainEvents(): List<Event> = map { it.toDomain() }

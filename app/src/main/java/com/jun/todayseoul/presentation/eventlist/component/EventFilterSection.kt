@@ -1,61 +1,74 @@
 package com.jun.todayseoul.presentation.eventlist.component
 
-// 날짜, 지역 입력 필터 UI를 담당하는 컴포저블 모듈.
+// 날짜 선택 필터 UI를 담당하는 컴포저블 모듈.
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jun.todayseoul.core.theme.TodaySeoulTheme
 
 @Composable
 fun EventFilterSection(
     dateDisplay: String,
     onDateClick: () -> Unit,
-    locationValue: String,
-    onLocationChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = "오늘 참여할 행사를 찾아보세요",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
         FilledTonalButton(
             onClick = onDateClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = dateDisplay)
-        }
-        OutlinedTextField(
-            value = locationValue,
-            onValueChange = onLocationChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("지역 검색 (구/장소)") },
-            placeholder = { Text("예: 강남구 또는 서울숲") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Text
-            ),
-            keyboardActions = KeyboardActions(onDone = { })
-        )
+            shape = RectangleShape
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.size(24.dp))
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = dateDisplay,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = "날짜 선택",
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .size(24.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
     }
 }
 
@@ -65,9 +78,7 @@ private fun EventFilterSectionPreview() {
     TodaySeoulTheme {
         EventFilterSection(
             dateDisplay = "2024년 10월 13일 (일)",
-            onDateClick = {},
-            locationValue = "강남",
-            onLocationChange = {}
+            onDateClick = {}
         )
     }
 }

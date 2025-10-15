@@ -80,9 +80,9 @@ class EventListViewModel(
         }
     }
 
-    fun updateLocation(query: String?) {
+    fun updateSearchQuery(query: String?) {
         viewModelScope.launch(ioDispatcher) {
-            filterPreferencesRepository.updateLocation(query)
+            filterPreferencesRepository.updateSearchQuery(query)
         }
     }
 

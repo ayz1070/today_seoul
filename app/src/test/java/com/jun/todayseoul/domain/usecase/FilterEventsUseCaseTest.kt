@@ -36,16 +36,16 @@ class FilterEventsUseCaseTest {
     }
 
     @Test
-    fun `filters by location using guName and place`() {
+    fun `filters by search across title and location`() {
         val events = listOf(
-            createEvent(title = "Match Gu", date = "2024-10-13", guName = "강남구"),
-            createEvent(title = "Match Place", date = "2024-10-13", guName = null, place = "서울숲"),
-            createEvent(title = "No Match", date = "2024-10-13", guName = "서초구")
+            createEvent(title = "서울숲 걷기", date = "2024-10-13", guName = "성동구"),
+            createEvent(title = "도심 산책", date = "2024-10-13", guName = null, place = "서울숲"),
+            createEvent(title = "한강 러닝", date = "2024-10-13", guName = "서초구")
         )
 
-        val result = useCase(events, EventFilter(date = targetDate, locationQuery = "서울"))
+        val result = useCase(events, EventFilter(date = targetDate, searchQuery = "서울"))
 
-        assertEquals(listOf("Match Place"), result.map { it.title })
+        assertEquals(listOf("서울숲 걷기", "도심 산책"), result.map { it.title })
     }
 
     @Test
