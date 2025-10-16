@@ -53,8 +53,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -77,6 +80,20 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+private val googleFontProvider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+
+private val festaTitleFontFamily = FontFamily(
+    Font(
+        googleFont = GoogleFont("Kaushan Script"),
+        fontProvider = googleFontProvider,
+        weight = FontWeight.Bold
+    )
+)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -239,7 +256,12 @@ fun EventListScreen(
                             }
                         )
                     } else {
-                        Text(text = "오늘은뭐하지", fontWeight = Bold, fontSize = 20.sp)
+                        Text(
+                            text = "Festa",
+                            fontFamily = festaTitleFontFamily,
+                            fontWeight = Bold,
+                            fontSize = 20.sp
+                        )
                     }
                 },
                 actions = {
