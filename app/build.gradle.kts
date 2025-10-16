@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.google.play.services.ads)
     implementation(libs.coil.compose)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)

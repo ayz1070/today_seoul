@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/widget_scrim_black"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/text_event_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TOT 0개"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/text_pick_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="PICK"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/white" />
+
+    <ImageView
+        android:id="@+id/image_event_poster"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/widget_event_poster"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_widget_poster_placeholder" />
+
+    <TextView
+        android:id="@+id/text_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_horizontal"
+        android:text="오늘 참여 가능한 행사가 없어요"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/white"
+        android:visibility="gone" />
+
+</LinearLayout>

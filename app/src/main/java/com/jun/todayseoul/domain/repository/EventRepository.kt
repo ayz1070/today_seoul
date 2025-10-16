@@ -10,6 +10,6 @@ interface EventRepository {
 
     companion object {
         const val DEFAULT_START = 1
-        const val DEFAULT_END = 200
+        const val DEFAULT_END = 999
     }
 }

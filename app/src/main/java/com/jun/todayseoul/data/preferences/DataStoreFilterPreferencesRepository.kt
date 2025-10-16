@@ -1,11 +1,12 @@
 package com.jun.todayseoul.data.preferences
 
 import android.content.Context
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.jun.todayseoul.domain.model.EventFilter
 import com.jun.todayseoul.domain.repository.FilterPreferencesRepository
 import java.io.IOException
@@ -17,16 +18,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import okio.Path.Companion.toPath
+
+private val Context.eventFilterDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = DataStoreFilterPreferencesRepository.DATA_STORE_NAME
+)
 
 class DataStoreFilterPreferencesRepository(
     context: Context,
     private val clock: Clock = Clock.system(DEFAULT_ZONE_ID)
 ) : FilterPreferencesRepository {
 
-    private val dataStore = PreferenceDataStoreFactory.createWithPath {
-        context.preferencesDataStoreFile(DATA_STORE_NAME).absolutePath.toPath()
-    }
+    private val dataStore = context.applicationContext.eventFilterDataStore
 
     override val filterFlow: Flow<EventFilter> = dataStore.data
         .catch { throwable ->
@@ -69,8 +71,8 @@ class DataStoreFilterPreferencesRepository(
         LocalDate.parse(this, DateTimeFormatter.ISO_DATE)
     }.getOrNull()
 
-    private companion object {
-        private const val DATA_STORE_NAME = "event_filter_preferences"
+    companion object {
+        internal const val DATA_STORE_NAME = "event_filter_preferences"
         private val DATE_KEY = stringPreferencesKey("selected_date")
         private val SEARCH_KEY = stringPreferencesKey("search_query")
         private val LEGACY_LOCATION_KEY = stringPreferencesKey("location_query")

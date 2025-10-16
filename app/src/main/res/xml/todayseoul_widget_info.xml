@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="90dp"
+    android:minHeight="90dp"
+    android:updatePeriodMillis="0"
+    android:previewImage="@drawable/app_icon"
+    android:initialLayout="@layout/widget_todayseoul"
+    android:widgetCategory="home_screen"
+    android:resizeMode="horizontal|vertical" />

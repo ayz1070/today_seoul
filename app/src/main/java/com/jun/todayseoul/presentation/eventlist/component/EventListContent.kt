@@ -46,8 +46,8 @@ fun EventListContent(
         is EventListUiState.ScreenState.Success -> {
             LazyColumn(
                 modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(36.dp)
             ) {
                 items(
                     items = screenState.events,

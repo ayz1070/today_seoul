@@ -141,7 +141,7 @@ private fun PosterSection(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = title.ifBlank { "제목 미정" },
