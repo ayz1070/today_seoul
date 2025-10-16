@@ -17,16 +17,22 @@ class FilterEventsUseCase {
 
     operator fun invoke(
         events: List<Event>,
-        filter: EventFilter
+        filter: EventFilter,
+        sort: Boolean = true
     ): List<Event> {
         val normalizedQuery = filter.searchQuery?.trim().orEmpty()
 
-        return events
+        val filtered = events
             .asSequence()
             .filter { it.matchesDate(filter.date) }
             .filter { it.matchesSearch(normalizedQuery) }
-            .sortedWith(eventComparator)
             .toList()
+
+        return if (sort) {
+            filtered.sortedWith(eventComparator)
+        } else {
+            filtered
+        }
     }
 
     private fun Event.matchesSearch(query: String): Boolean {

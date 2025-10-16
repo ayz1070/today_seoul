@@ -2,6 +2,7 @@ package com.jun.todayseoul.presentation.eventlist.component
 
 // 로딩/성공/빈 상태에 따라 다른 리스트 UI를 보여주는 컴포넌트.
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,13 +10,20 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -25,11 +33,14 @@ import androidx.compose.ui.unit.dp
 import com.jun.todayseoul.core.theme.TodaySeoulTheme
 import com.jun.todayseoul.domain.model.Event
 import com.jun.todayseoul.presentation.eventlist.EventListUiState
+import kotlinx.coroutines.flow.distinctUntilChanged
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EventListContent(
     screenState: EventListUiState.ScreenState,
     onRetry: () -> Unit,
+    onLoadMore: () -> Unit,
     onOpenLink: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -44,13 +55,38 @@ fun EventListContent(
         }
 
         is EventListUiState.ScreenState.Success -> {
-            LazyColumn(
+            val successState = screenState
+            val listState = rememberLazyGridState()
+            val currentSuccessState by rememberUpdatedState(successState)
+
+            LaunchedEffect(listState) {
+                snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+                    .distinctUntilChanged()
+                    .collect { lastVisibleIndex ->
+                        val state = currentSuccessState
+                        if (
+                            lastVisibleIndex != null &&
+                            state.hasMoreData &&
+                            !state.isLoadingMore
+                        ) {
+                            val triggerIndex = (state.events.size - LOAD_MORE_THRESHOLD).coerceAtLeast(0)
+                            if (lastVisibleIndex >= triggerIndex) {
+                                onLoadMore()
+                            }
+                        }
+                    }
+            }
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
                 modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(36.dp)
+                state = listState,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(
-                    items = screenState.events,
+                    items = successState.events,
                     key = { event ->
                         buildString {
                             append(event.title.orEmpty())
@@ -66,6 +102,22 @@ fun EventListContent(
                         onOpenLink = onOpenLink,
                         modifier = Modifier.fillMaxWidth()
                     )
+                }
+
+                if (successState.isLoadingMore) {
+                    item(
+                        key = "loading_more_indicator",
+                        span = { GridItemSpan(maxLineSpan) }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
         }
@@ -120,6 +172,8 @@ private fun EmptyState(
     }
 }
 
+private const val LOAD_MORE_THRESHOLD = 5
+
 @Preview(showBackground = true, locale = "ko")
 @Composable
 private fun EventListContentLoadingPreview() {
@@ -127,6 +181,7 @@ private fun EventListContentLoadingPreview() {
         EventListContent(
             screenState = EventListUiState.ScreenState.Loading,
             onRetry = {},
+            onLoadMore = {},
             onOpenLink = {}
         )
     }
@@ -148,9 +203,12 @@ private fun EventListContentSuccessPreview() {
                         guName = "성동구",
                         place = "서울숲 야외무대"
                     )
-                )
+                ),
+                isLoadingMore = true,
+                hasMoreData = true
             ),
             onRetry = {},
+            onLoadMore = {},
             onOpenLink = {}
         )
     }
@@ -163,6 +221,7 @@ private fun EventListContentErrorPreview() {
         EventListContent(
             screenState = EventListUiState.ScreenState.Error(message = "네트워크 오류가 발생했어요."),
             onRetry = {},
+            onLoadMore = {},
             onOpenLink = {}
         )
     }

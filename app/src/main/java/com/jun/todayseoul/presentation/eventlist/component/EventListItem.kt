@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -141,34 +142,41 @@ private fun PosterSection(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             Text(
                 text = title.ifBlank { "제목 미정" },
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             formattedDate?.let { date ->
                 Text(
                     text = date,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = Color.White
                 )
             }
             locationLabel?.takeIf { it.isNotBlank() }?.let {
                 Text(
                     text = "위치: $it",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    )
             }
             useFee?.takeIf { it.isNotBlank() }?.let {
                 Text(
-                    text = "이용료: $it",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+                    text = "가격: $it",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+
+                    )
             }
         }
     }

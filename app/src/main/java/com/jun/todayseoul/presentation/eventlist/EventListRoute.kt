@@ -24,6 +24,7 @@ fun EventListRoute(
         onSelectDate = viewModel::updateDate,
         onSearchQueryChange = viewModel::updateSearchQuery,
         onRetry = viewModel::refreshEvents,
+        onLoadMore = viewModel::loadNextPage,
         onOpenLink = { link ->
             runCatching { uriHandler.openUri(link) }
                 .onFailure {

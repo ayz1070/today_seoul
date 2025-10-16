@@ -8,14 +8,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/text_event_count"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TOT 0개"
-        android:textStyle="bold"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/text_pick_label"
@@ -24,7 +16,7 @@
         android:layout_marginTop="8dp"
         android:text="PICK"
         android:textStyle="bold"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/white" />
 
     <ImageView

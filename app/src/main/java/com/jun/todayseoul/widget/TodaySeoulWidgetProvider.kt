@@ -81,8 +81,7 @@ class TodaySeoulWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.widget_todayseoul)
 
         val eventCount = data?.eventCount ?: 0
-        views.setTextViewText(R.id.text_event_count, "TOT. ${eventCount}")
-        views.setTextViewText(R.id.text_pick_label, "HOT.")
+        views.setTextViewText(R.id.text_pick_label, "PICK")
 
         val hasPoster = poster != null
         if (hasPoster) {
@@ -109,7 +108,6 @@ class TodaySeoulWidgetProvider : AppWidgetProvider() {
 
     private fun buildErrorRemoteViews(context: Context): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_todayseoul)
-        views.setTextViewText(R.id.text_event_count, "TOT 0개")
         views.setTextViewText(R.id.text_pick_label, "PICK")
         views.setViewVisibility(R.id.image_event_poster, View.GONE)
         views.setViewVisibility(R.id.text_empty, View.VISIBLE)

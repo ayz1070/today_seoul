@@ -8,9 +8,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
@@ -46,6 +51,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -80,6 +86,7 @@ fun EventListScreen(
     onSelectDate: (LocalDate) -> Unit,
     onSearchQueryChange: (String?) -> Unit,
     onRetry: () -> Unit,
+    onLoadMore: () -> Unit,
     onOpenLink: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -90,6 +97,7 @@ fun EventListScreen(
         mutableStateOf(uiState.filter.searchQuery.orEmpty())
     }
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     val dateDisplay = remember(uiState.filter.date) {
         displayDateFormatter.format(uiState.filter.date)
@@ -188,7 +196,6 @@ fun EventListScreen(
                             value = searchQuery,
                             onValueChange = { value ->
                                 searchQuery = value
-                                onSearchQueryChange(value.ifBlank { null })
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -200,7 +207,10 @@ fun EventListScreen(
                                 capitalization = KeyboardCapitalization.None,
                                 imeAction = ImeAction.Search
                             ),
-                            keyboardActions = KeyboardActions(onSearch = { /* handled on change */ }),
+                            keyboardActions = KeyboardActions(onSearch = {
+                                onSearchQueryChange(searchQuery.ifBlank { null })
+                                focusManager.clearFocus()
+                            }),
                             colors = TextFieldDefaults.colors(
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent,
@@ -218,6 +228,7 @@ fun EventListScreen(
                                     IconButton(onClick = {
                                         searchQuery = ""
                                         onSearchQueryChange(null)
+                                        focusManager.clearFocus()
                                     }) {
                                         Icon(
                                             imageVector = Icons.Filled.Close,
@@ -233,14 +244,30 @@ fun EventListScreen(
                 },
                 actions = {
                     if (searchFieldVisible) {
-                        IconButton(onClick = { searchFieldVisible = false }) {
+                        IconButton(onClick = {
+                            onSearchQueryChange(searchQuery.ifBlank { null })
+                            focusManager.clearFocus()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = "검색 실행"
+                            )
+                        }
+                        IconButton(onClick = {
+                            searchFieldVisible = false
+                            searchQuery = uiState.filter.searchQuery.orEmpty()
+                            focusManager.clearFocus()
+                        }) {
                             Icon(
                                 imageVector = Icons.Filled.Close,
                                 contentDescription = "검색 닫기"
                             )
                         }
                     } else {
-                        IconButton(onClick = { searchFieldVisible = true }) {
+                        IconButton(onClick = {
+                            searchFieldVisible = true
+                            searchQuery = uiState.filter.searchQuery.orEmpty()
+                        }) {
                             Icon(
                                 imageVector = Icons.Filled.Search,
                                 contentDescription = "검색",
@@ -262,9 +289,13 @@ fun EventListScreen(
             EventListBannerAd(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                    )
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
-        }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -281,6 +312,7 @@ fun EventListScreen(
             EventListContent(
                 screenState = uiState.screenState,
                 onRetry = onRetry,
+                onLoadMore = onLoadMore,
                 onOpenLink = onOpenLink
             )
         }
@@ -337,12 +369,15 @@ private fun EventListScreenPreview() {
                             place = "서울숲 야외무대",
                             imageUrl = "https://picsum.photos/seed/screen-preview/800/1200"
                         )
-                    )
+                    ),
+                    isLoadingMore = false,
+                    hasMoreData = true
                 )
             ),
             onSelectDate = {},
             onSearchQueryChange = {},
             onRetry = {},
+            onLoadMore = {},
             onOpenLink = {}
         )
     }

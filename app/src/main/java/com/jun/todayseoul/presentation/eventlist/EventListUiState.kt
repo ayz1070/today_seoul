@@ -26,7 +26,11 @@ data class EventListUiState(
 
     sealed interface ScreenState {
         data object Loading : ScreenState
-        data class Success(val events: List<Event>) : ScreenState
+        data class Success(
+            val events: List<Event>,
+            val isLoadingMore: Boolean,
+            val hasMoreData: Boolean
+        ) : ScreenState
         data object Empty : ScreenState
         data class Error(val message: String?) : ScreenState
     }

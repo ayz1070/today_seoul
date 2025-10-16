@@ -32,7 +32,12 @@ class EventListViewModel(
     val uiState: StateFlow<EventListUiState> = _uiState.asStateFlow()
 
     private val cachedEvents = MutableStateFlow<List<Event>>(emptyList())
-    private var hasLoadedData: Boolean = false
+    private val loadedEvents = mutableListOf<Event>()
+    private var hasLoadedInitial: Boolean = false
+    private var isLoadingInitial: Boolean = false
+    private var isLoadingMore: Boolean = false
+    private var hasMoreData: Boolean = true
+    private var nextStartIndex: Int = EventRepository.DEFAULT_START
 
     init {
         observeFilterPreferences()
@@ -40,38 +45,11 @@ class EventListViewModel(
     }
 
     fun refreshEvents() {
-        viewModelScope.launch(ioDispatcher) {
-            _uiState.update { current ->
-                current.copy(screenState = EventListUiState.ScreenState.Loading)
-            }
+        loadEvents(reset = true)
+    }
 
-            val currentFilter = uiState.value.filter
-            eventRepository.fetchEvents()
-                .onSuccess { events ->
-                    cachedEvents.value = events
-                    hasLoadedData = true
-                    if (events.isEmpty()) {
-                        _uiState.update { state ->
-                            state.copy(
-                                filter = currentFilter,
-                                screenState = EventListUiState.ScreenState.Empty
-                            )
-                        }
-                    } else {
-                        applyFilter(currentFilter, events)
-                    }
-                }
-                .onFailure { throwable ->
-                    hasLoadedData = false
-                    _uiState.update { state ->
-                        state.copy(
-                            screenState = EventListUiState.ScreenState.Error(
-                                throwable.message?.takeIf { it.isNotBlank() }
-                            )
-                        )
-                    }
-                }
-        }
+    fun loadNextPage() {
+        loadEvents(reset = false)
     }
 
     fun updateDate(date: LocalDate) {
@@ -95,18 +73,26 @@ class EventListViewModel(
     }
 
     private fun applyFilter(filter: EventFilter, events: List<Event>) {
-        if (!hasLoadedData) {
+        if (!hasLoadedInitial && events.isEmpty()) {
             _uiState.update { state ->
                 state.copy(filter = filter)
             }
             return
         }
 
-        val filteredEvents = filterEventsUseCase(events, filter)
+        val filteredEvents = filterEventsUseCase(
+            events = events,
+            filter = filter,
+            sort = false
+        )
         val screenState = if (filteredEvents.isEmpty()) {
             EventListUiState.ScreenState.Empty
         } else {
-            EventListUiState.ScreenState.Success(filteredEvents)
+            EventListUiState.ScreenState.Success(
+                events = filteredEvents,
+                isLoadingMore = isLoadingMore,
+                hasMoreData = hasMoreData
+            )
         }
 
         _uiState.update { state ->
@@ -117,7 +103,82 @@ class EventListViewModel(
         }
     }
 
+    private fun loadEvents(reset: Boolean) {
+        if (reset) {
+            if (isLoadingInitial) return
+            isLoadingInitial = true
+            isLoadingMore = false
+            hasMoreData = true
+            hasLoadedInitial = false
+            nextStartIndex = EventRepository.DEFAULT_START
+            loadedEvents.clear()
+            cachedEvents.value = emptyList()
+            _uiState.update { current ->
+                current.copy(screenState = EventListUiState.ScreenState.Loading)
+            }
+        } else {
+            if (isLoadingInitial || isLoadingMore || !hasMoreData) {
+                return
+            }
+            isLoadingMore = true
+            applyFilter(uiState.value.filter, cachedEvents.value)
+        }
+
+        val start = nextStartIndex
+        val end = start + PAGE_SIZE - 1
+
+        viewModelScope.launch(ioDispatcher) {
+            eventRepository.fetchEvents(start = start, end = end)
+                .onSuccess { events ->
+                    if (reset) {
+                        isLoadingInitial = false
+                        hasLoadedInitial = true
+                    } else {
+                        isLoadingMore = false
+                    }
+
+                    if (events.isEmpty()) {
+                        hasMoreData = false
+                        if (loadedEvents.isEmpty()) {
+                            _uiState.update { state ->
+                                state.copy(
+                                    screenState = EventListUiState.ScreenState.Empty
+                                )
+                            }
+                        } else {
+                            applyFilter(uiState.value.filter, cachedEvents.value)
+                        }
+                        return@onSuccess
+                    }
+
+                    loadedEvents.addAll(events)
+                    cachedEvents.value = loadedEvents.toList()
+                    nextStartIndex = end + 1
+                    hasMoreData = events.size >= PAGE_SIZE
+                    applyFilter(uiState.value.filter, cachedEvents.value)
+                }
+                .onFailure { throwable ->
+                    if (reset) {
+                        isLoadingInitial = false
+                        hasLoadedInitial = false
+                        _uiState.update { state ->
+                            state.copy(
+                                screenState = EventListUiState.ScreenState.Error(
+                                    throwable.message?.takeIf { it.isNotBlank() }
+                                )
+                            )
+                        }
+                    } else {
+                        isLoadingMore = false
+                        hasMoreData = false
+                        applyFilter(uiState.value.filter, cachedEvents.value)
+                    }
+                }
+        }
+    }
+
     companion object {
         private val DEFAULT_ZONE_ID: ZoneId = ZoneId.of("Asia/Seoul")
+        private const val PAGE_SIZE = 500
     }
 }
