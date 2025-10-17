@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -123,15 +124,13 @@ fun EventListScreen(
     if (showDatePicker) {
         val initialMillis = uiState.filter.date.toEpochMillis(zoneId)
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
-        val selectionColor = Color(0xFF63A1F2)
+        val selectionColor = MaterialTheme.colorScheme.primary
         Dialog(
             onDismissRequest = { showDatePicker = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 0.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Surface(
                     shape = RectangleShape,
@@ -169,7 +168,8 @@ fun EventListScreen(
                                 colors = ButtonDefaults.textButtonColors(
                                     contentColor = MaterialTheme.colorScheme.onSurface,
                                     containerColor = Color.DarkGray
-                                )
+                                ),
+                                contentPadding = PaddingValues(0.dp)
                             ) {
                                 Text(text = "취소")
                             }
@@ -187,7 +187,8 @@ fun EventListScreen(
                                 colors = ButtonDefaults.textButtonColors(
                                     contentColor = MaterialTheme.colorScheme.onSurface,
                                     containerColor = selectionColor
-                                )
+                                ),
+                                contentPadding = PaddingValues(0.dp)
                             ) {
                                 Text(text = "선택")
                             }
@@ -307,16 +308,16 @@ fun EventListScreen(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground,
-        bottomBar = {
-            EventListBannerAd(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-        },
+//        bottomBar = {
+//            EventListBannerAd(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .windowInsetsPadding(
+//                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+//                    )
+//                    .padding(horizontal = 16.dp, vertical = 8.dp)
+//            )
+//        },
         contentWindowInsets = WindowInsets.safeDrawing
     ) { innerPadding ->
         Column(
